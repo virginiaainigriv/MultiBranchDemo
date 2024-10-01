@@ -36,4 +36,14 @@ pipeline {
   
    	}
 
+     stage("Deploy application") { 
+      
+         steps { 
+           sh 'echo "Deployment application..."'
+         }
+
+     }
+  
+   	}
+
    }
