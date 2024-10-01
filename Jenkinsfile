@@ -16,6 +16,12 @@ pipeline {
         }
       }
 
+        stage('Review') { 
+        steps { 
+           sh 'echo "Review application..."'
+        }
+      }
+
       stage('Test') { 
         steps { 
            sh 'echo "Test application..."'
