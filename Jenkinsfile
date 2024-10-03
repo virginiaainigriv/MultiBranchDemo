@@ -1,47 +1,31 @@
-pipeline { 
-  
-   agent any
-
-   stages {
-   
-     stage('Checkout') { 
-        steps { 
-         sh  'echo "Checkout code"'
-        }
-     }
-     
-     stage('Compile') { 
-        steps { 
-           sh 'echo "compile application..."'
-        }
+pipeline {
+  agent any
+  stages {
+    stage('Unit Test') {
+      steps {
+        sh 'mvn clean test'
       }
-
-        stage('Review') { 
-        steps { 
-           sh 'echo "Review application..."'
-        }
+    }
+    stage('Deploy Standalone') {
+      steps {
+        sh 'mvn deploy -P standalone'
       }
-
-      stage('Test') { 
-        steps { 
-           sh 'echo "Test application..."'
-        }
+    }
+    stage('Deploy AnyPoint') {
+      environment {
+        ANYPOINT_CREDENTIALS = credentials('anypoint.credentials')
       }
-         stage("Package application") { 
-         steps { 
-           sh 'echo "package application..."'
-         }
-
-     }
-  
-   	}
-
-     stage("Deploy application") { 
-      
-         steps { 
-           sh 'echo "Deployment application..."'
-         }
-
-     }
-  
-   	}
+      steps {
+        sh 'mvn deploy -P arm -Darm.target.name=local-4.0.0-ee -Danypoint.username=${ANYPOINT_CREDENTIALS_USR}  -Danypoint.password=${ANYPOINT_CREDENTIALS_PSW}'
+      }
+    }
+    stage('Deploy CloudHub') {
+      environment {
+        ANYPOINT_CREDENTIALS = credentials('anypoint.credentials')
+      }
+      steps {
+        sh 'mvn deploy -P cloudhub -Dmule.version=4.0.0 -Danypoint.username=${ANYPOINT_CREDENTIALS_USR} -Danypoint.password=${ANYPOINT_CREDENTIALS_PSW}'
+      }
+    }
+  }
+}
